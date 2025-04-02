@@ -13,22 +13,38 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const moviesPerPage = 10; // Number of movies to display per page
+  
+  // Store all search results to enable pagination
+  const [allResults, setAllResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    const loadPopularMovies = async () => {
+    const loadMovies = async () => {
+      setLoading(true);
+      
       try {
-        const allMovies = await getPopularMovies();
-
-        // Calculate total pages based on the number of movies returned
-        const total = Math.ceil(allMovies.length / moviesPerPage);
-        setTotalPages(total);
-
-        // Slice the movies array for the current page
-        const startIndex = (currentPage - 1) * moviesPerPage;
-        const endIndex = startIndex + moviesPerPage;
-        const paginatedMovies = allMovies.slice(startIndex, endIndex);
-
-        setMovies(paginatedMovies);
+        if (isSearching) {
+          // If we're in search mode, paginate from existing search results
+          const startIndex = (currentPage - 1) * moviesPerPage;
+          const endIndex = startIndex + moviesPerPage;
+          const paginatedMovies = allResults.slice(startIndex, endIndex);
+          setMovies(paginatedMovies);
+        } else {
+          // Otherwise load popular movies
+          const allMovies = await getPopularMovies();
+          
+          // Calculate total pages based on the number of movies returned
+          const total = Math.ceil(allMovies.length / moviesPerPage);
+          setTotalPages(total);
+          
+          // Slice the movies array for the current page
+          const startIndex = (currentPage - 1) * moviesPerPage;
+          const endIndex = startIndex + moviesPerPage;
+          const paginatedMovies = allMovies.slice(startIndex, endIndex);
+          
+          setMovies(paginatedMovies);
+        }
+        
         setError(null);
       } catch (err) {
         console.log(err);
@@ -38,17 +54,15 @@ function Home() {
       }
     };
 
-    // Only load popular movies if no search query exists
-    if (!searchQuery.trim()) {
-      loadPopularMovies();
-    }
-
-    // loadPopularMovies();
-  }, [currentPage, searchQuery]); // Re-run when the page changes
+    loadMovies();
+  }, [currentPage, isSearching, allResults]); // Add isSearching and allResults to dependencies
 
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) {
+      // If search query is empty, reset to popular movies
+      setIsSearching(false);
+      setCurrentPage(1);
       return;
     }
 
@@ -58,18 +72,21 @@ function Home() {
     try {
       // Fetch all search results
       const allSearchResults = await searchMovies(searchQuery);
-
+      
+      // Store all results for pagination
+      setAllResults(allSearchResults);
+      
       // Calculate total pages
       const total = Math.ceil(allSearchResults.length / moviesPerPage);
       setTotalPages(total);
-
+      
       // Reset to page 1 when performing a new search
       setCurrentPage(1);
-
-      // Get movies for the first page
-      const paginatedResults = allSearchResults.slice(0, moviesPerPage);
-      setMovies(paginatedResults);
-
+      
+      // Set search mode
+      setIsSearching(true);
+      
+      // Display results for first page (handled by useEffect)
       setError(null);
     } catch (err) {
       console.log(err);
@@ -81,18 +98,21 @@ function Home() {
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
-
+    
     setCurrentPage(newPage);
     window.scrollTo(0, 0); // Scroll to top when changing pages
+  };
 
-    // We don't need to fetch data here since useEffect will handle it
-    // when currentPage changes
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setIsSearching(false);
+    setCurrentPage(1);
   };
 
   // Create pagination buttons
   const renderPaginationButtons = () => {
     const buttons = [];
-
+    
     // Add previous button
     buttons.push(
       <button
@@ -104,19 +124,16 @@ function Home() {
         &laquo; Prev
       </button>
     );
-
+    
     // Calculate range of pages to show
     let startPage = Math.max(1, currentPage - 2);
-    // console.log(`Startpage =  ${startPage}`)
     let endPage = Math.min(totalPages, startPage + 4);
-    // console.log(`endpage =  ${endPage}`)
-
+    
     // Adjust if we're near the end
     if (endPage - startPage < 4) {
       startPage = Math.max(1, endPage - 4);
-      // console.log(`Adjusted startpage =  ${startPage}`)
     }
-
+    
     // First page if not in range
     if (startPage > 1) {
       buttons.push(
@@ -128,12 +145,12 @@ function Home() {
           1
         </button>
       );
-
+      
       if (startPage > 2) {
         buttons.push(<span key="ellipsis1" className="pagination-ellipsis">...</span>);
       }
     }
-
+    
     // Page buttons
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(
@@ -146,13 +163,13 @@ function Home() {
         </button>
       );
     }
-
+    
     // Last page if not in range
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         buttons.push(<span key="ellipsis2" className="pagination-ellipsis">...</span>);
       }
-
+      
       buttons.push(
         <button
           key={totalPages}
@@ -163,7 +180,7 @@ function Home() {
         </button>
       );
     }
-
+    
     // Add next button
     buttons.push(
       <button
@@ -175,7 +192,7 @@ function Home() {
         Next &raquo;
       </button>
     );
-
+    
     return buttons;
   };
 
@@ -192,6 +209,15 @@ function Home() {
         <button type="submit" className="search-button">
           Search
         </button>
+        {isSearching && (
+          <button 
+            type="button" 
+            className="clear-search-button"
+            onClick={handleClearSearch}
+          >
+            Clear
+          </button>
+        )}
       </form>
 
       {error && <div className="error-message">{error}</div>}
@@ -200,6 +226,12 @@ function Home() {
         <div className="loading">Loading...</div>
       ) : (
         <>
+          {isSearching && (
+            <div className="search-results-info">
+              Showing results for "{searchQuery}" ({allResults.length} movies found)
+            </div>
+          )}
+          
           <div className="movies-grid">
             {movies.length > 0 ? (
               movies.map((movie) => (
