@@ -34,6 +34,7 @@ function Home() {
     try {
         const searchResults = await searchMovies(searchQuery)
         setMovies(searchResults)
+        console.log(searchResults);
         setError(null)
     } catch (err) {
         console.log(err)
@@ -64,7 +65,7 @@ function Home() {
         <div className="loading">Loading...</div>
       ) : (
         <div className="movies-grid">
-          {movies.map((movie) => (
+          {movies.map((movie) => (            
             <MovieCard movie={movie} key={movie.id} />
           ))}
         </div>
