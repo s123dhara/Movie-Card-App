@@ -34,7 +34,7 @@ function Home() {
     try {
         const searchResults = await searchMovies(searchQuery)
         setMovies(searchResults)
-        console.log(searchResults);
+        // console.log(searchResults);
         setError(null)
     } catch (err) {
         console.log(err)
