@@ -16,7 +16,7 @@ export const getPopularMovies = async () => {
     //   options
     // );
 
-    const response = await fetch(`https://movies-app-backend-hazel.vercel.app/get-popular-movies`);
+    const response = await fetch(`https://moives-app-backend.vercel.app/get-popular-movies`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -32,7 +32,7 @@ export const getPopularMovies = async () => {
 export const searchMovies = async (query) => {
   try {
 
-    const response = await fetch(`https://movies-app-backend-hazel.vercel.app/search?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`https://moives-app-backend.vercel.app/search?query=${encodeURIComponent(query)}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
