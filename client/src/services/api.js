@@ -1,13 +1,4 @@
-const API_KEY = "7d9045f2c8mshcaa60d226195714p1070e9jsn7343d219f649";
-const BASE_URL = "https://imdb236.p.rapidapi.com/imdb";
-
-const options = {
-  method: 'GET',
-  headers: {
-    'x-rapidapi-key': API_KEY, // Add your API key here
-    'x-rapidapi-host': 'imdb236.p.rapidapi.com'
-  }
-};
+const BASE_URL = "https://movie-card-6mi09f3p8-s123dharas-projects.vercel.app";
 
 export const getPopularMovies = async () => {
   try {
@@ -16,7 +7,7 @@ export const getPopularMovies = async () => {
     //   options
     // );
 
-    const response = await fetch(`https://moives-app-backend.vercel.app/get-popular-movies`);
+    const response = await fetch(`${BASE_URL}/get-popular-movies`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -32,7 +23,7 @@ export const getPopularMovies = async () => {
 export const searchMovies = async (query) => {
   try {
 
-    const response = await fetch(`https://moives-app-backend.vercel.app/search?query=${encodeURIComponent(query)}`);
+    const response = await fetch(`${BASE_URL}/search?query=${encodeURIComponent(query)}`);
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
