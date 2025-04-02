@@ -38,12 +38,20 @@ function Home() {
       }
     };
 
+    // Only load popular movies if no search query exists
+    if (!searchQuery.trim()) {
+      loadPopularMovies();
+    }
+
     loadPopularMovies();
-  }, [currentPage]); // Re-run when the page changes
+  }, [currentPage, searchQuery]); // Re-run when the page changes
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      return;
+    }
+
     if (loading) return;
 
     setLoading(true);
