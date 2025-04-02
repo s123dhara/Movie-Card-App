@@ -43,7 +43,7 @@ function Home() {
       loadPopularMovies();
     }
 
-    loadPopularMovies();
+    // loadPopularMovies();
   }, [currentPage, searchQuery]); // Re-run when the page changes
 
   const handleSearch = async (e) => {
