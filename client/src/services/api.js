@@ -1,4 +1,4 @@
-const BASE_URL = "https://movie-card-6mi09f3p8-s123dharas-projects.vercel.app";
+const BASE_URL = "https://moives-app-backend-rm0578y7p-s123dharas-projects.vercel.app/";
 
 export const getPopularMovies = async () => {
   try {
